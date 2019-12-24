@@ -30,23 +30,6 @@ RUN apt-get -q update \
         postgresql-server-dev-all \
         postgresql-common \
         libyaml-dev \
-
-
-
-        build-essential \
-        autoconf \
-        automake \
-        libtool \
-        cmake \
-        zlib1g-dev \
-        pkg-config \
-        libssl-dev \
-        libssl1.0.0 \
-        libsasl2-dev \
-        bats \
-        curl \
-        sudo \
-        git \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
