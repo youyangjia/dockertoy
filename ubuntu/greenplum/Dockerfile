@@ -10,6 +10,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ######
 RUN apt-get -q update \
     && apt-get -q install -y --no-install-recommends \
+        build-essential \
         ccache \
         libevent-dev \
         libapr1-dev \
@@ -30,6 +31,10 @@ RUN apt-get -q update \
         postgresql-server-dev-all \
         postgresql-common \
         libyaml-dev \
+        zlib1g \
+        zlib1g-dev \
+        sudo \
+        vim \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -50,14 +55,15 @@ RUN pip install setuptools \
     && pip install wheel \
     && pip install --user "pyopenssl>=19.0.0" \
     && pip install --user --pre psutil \
-    && pip install--user lockfile \
+    && pip install --user lockfile \
     && pip install --no-binary :all: pynacl \
-    && pip install --user paramiko \
+    && pip install --user paramiko || true
 
 ######
 # Clone gpdb source code
 ######
 RUN mkdir -p /home/greenplum/src \
+    && cd /home/greenplum/src \
     && git clone https://github.com/bzhaoopenstack/gpdb
 
 ENV TRAVIS_BUILD_DIR /home/greenplum/src/gpdb
@@ -83,7 +89,8 @@ RUN source ${TRAVIS_BUILD_DIR}/gpsql/greenplum_path.sh \
 ######
 # Check the installed apps
 ######
-RUN postgres --version \
+RUN source ${TRAVIS_BUILD_DIR}/gpsql/greenplum_path.sh \
+    && postgres --version \
     && initdb --version \
     && createdb --version \
     && psql --version \
