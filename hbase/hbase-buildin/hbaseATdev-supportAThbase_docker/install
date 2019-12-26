@@ -1,0 +1,6 @@
+#wget https://mirrors.dtops.cc/java/8/8u221-b11/jdk-8u221-linux-x64.tar.gz
+#wget https://portal-www-software.obs.cn-north-1.myhuaweicloud.com/%E7%BC%96%E8%AF%91%E5%B7%A5%E5%85%B7/jdk-8u222-linux-aarch64.tar.gz
+wget https://repo.huaweicloud.com/java/jdk/8u152-b16/jdk-8u152-linux-arm64-vfp-hflt.tar.gz
+
+wget https://archive.apache.org/dist/maven/maven-3/3.6.2/binaries/apache-maven-3.6.2-bin.tar.gz
+
