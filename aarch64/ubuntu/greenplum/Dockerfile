@@ -35,8 +35,17 @@ RUN apt-get -q update \
         zlib1g-dev \
         sudo \
         vim \
+        net-tools \
+        less \
+        iputils-ping \
+        ssh \
+        locales \
+        locales-all \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+RUN localedef -i en_US -f UTF-8 en_US.UTF-8
+RUN service ssh restart
 
 ######
 # Create test user with sudo priority
@@ -46,6 +55,13 @@ RUN echo "greenplum ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 USER greenplum
 WORKDIR /home/greenplum
+
+######
+# Genarate ssh connection without passwd to make sure demo cluster could be launched successful
+######
+RUN ssh-keygen -f ~/.ssh/id_rsa -t rsa -N '' \
+    && cat ~/.ssh/id_rsa.pub > ~/.ssh/authorized_keys
+
 
 ENV SODIUM_INSTALL system
 ######
@@ -97,3 +113,33 @@ RUN source ${TRAVIS_BUILD_DIR}/gpsql/greenplum_path.sh \
     && gpssh --version \
     && gpmapreduce --version \
     && gpfdist --version
+
+######
+# Fix the issue before unittest-check
+# issue: https://github.com/google/cmockery/issues/67
+######
+## fetch fixed PR from https://github.com/bzhaoopenstack/gpdb/pull/4
+RUN cd /home/greenplum/src/gpdb \
+    && git fetch origin pull/4/head:master
+
+## remove mock error statement
+RUN cd /home/greenplum/src/gpdb \
+    && cat src/test/unit/mock/backend/libpq/pqexpbuffer_mock.c | grep -v 'check_expected(args);' > src/test/unit/mock/backend/libpq/pqexpbuffer_mock.c_new \
+    && mv src/test/unit/mock/backend/libpq/pqexpbuffer_mock.c_new src/test/unit/mock/backend/libpq/pqexpbuffer_mock.c
+
+
+######
+# RUN the small part check
+######
+RUN source ${TRAVIS_BUILD_DIR}/gpsql/greenplum_path.sh \
+    && make -s unittest-check | tee ~/unittest-check.log \
+    && make -C gpAux/gpdemo cluster | tee ~/cluster-launch.log \
+    && source gpAux/gpdemo/gpdemo-env.sh \
+    && make -C src/test/regress installcheck-small | tee ~/installcheck-small.log
+
+######
+# RUN the whole regression check
+######
+RUN source ${TRAVIS_BUILD_DIR}/gpsql/greenplum_path.sh \
+    && make installcheck-world | tee ~/installcheck-world.log
+
