@@ -38,6 +38,7 @@ RUN apt-get -q update \
         net-tools \
         less \
         iputils-ping \
+        iproute2 \
         ssh \
         locales \
         locales-all \
@@ -45,7 +46,6 @@ RUN apt-get -q update \
     && rm -rf /var/lib/apt/lists/*
 
 RUN localedef -i en_US -f UTF-8 en_US.UTF-8
-RUN service ssh restart
 
 ######
 # Create test user with sudo priority
@@ -82,6 +82,11 @@ RUN mkdir -p /home/greenplum/src \
     && cd /home/greenplum/src \
     && git clone https://github.com/bzhaoopenstack/gpdb
 
+## fetch fixed PR from https://github.com/bzhaoopenstack/gpdb/pull/4
+RUN cd /home/greenplum/src/gpdb \
+    && git fetch origin pull/4/head:test-branch \
+    && git checkout test-branch
+
 ENV TRAVIS_BUILD_DIR /home/greenplum/src/gpdb
 
 ######
@@ -115,31 +120,33 @@ RUN source ${TRAVIS_BUILD_DIR}/gpsql/greenplum_path.sh \
     && gpfdist --version
 
 ######
+# RUN the small part check
+# This step will fail, and willing to genarate the following error file
+######
+RUN cd /home/greenplum/src/gpdb \
+    && source ${TRAVIS_BUILD_DIR}/gpsql/greenplum_path.sh \
+    && make -s unittest-check || true
+
+
+######
 # Fix the issue before unittest-check
 # issue: https://github.com/google/cmockery/issues/67
 ######
-## fetch fixed PR from https://github.com/bzhaoopenstack/gpdb/pull/4
-RUN cd /home/greenplum/src/gpdb \
-    && git fetch origin pull/4/head:master
-
 ## remove mock error statement
 RUN cd /home/greenplum/src/gpdb \
     && cat src/test/unit/mock/backend/libpq/pqexpbuffer_mock.c | grep -v 'check_expected(args);' > src/test/unit/mock/backend/libpq/pqexpbuffer_mock.c_new \
     && mv src/test/unit/mock/backend/libpq/pqexpbuffer_mock.c_new src/test/unit/mock/backend/libpq/pqexpbuffer_mock.c
 
 
+## restart ssh to enable ssh localhost via Domain
 ######
 # RUN the small part check
 ######
-RUN source ${TRAVIS_BUILD_DIR}/gpsql/greenplum_path.sh \
+RUN cd /home/greenplum/src/gpdb \
+    && source ${TRAVIS_BUILD_DIR}/gpsql/greenplum_path.sh \
     && make -s unittest-check | tee ~/unittest-check.log \
+    && sudo service ssh start \
     && make -C gpAux/gpdemo cluster | tee ~/cluster-launch.log \
     && source gpAux/gpdemo/gpdemo-env.sh \
-    && make -C src/test/regress installcheck-small | tee ~/installcheck-small.log
-
-######
-# RUN the whole regression check
-######
-RUN source ${TRAVIS_BUILD_DIR}/gpsql/greenplum_path.sh \
-    && make installcheck-world | tee ~/installcheck-world.log
-
+    && make -C src/test/regress installcheck-small | tee ~/installcheck-small.log || true \
+    && make installcheck-world | tee ~/installcheck-world.log || true
