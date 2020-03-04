@@ -1,4 +1,4 @@
-FROM ubuntu:bionic
+FROM centos:7
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
