@@ -19,9 +19,9 @@ RUN cd && \
 
 # Compile gcc
 RUN cd && \
-    wget https://mirrors.tuna.tsinghua.edu.cn/gnu/gcc/gcc-7.3.0/gcc-7.3.0.tar.gz && \
-    tar -xvf gcc-7.3.0.tar.gz && \
-    cd gcc-7.3.0 && \
+    wget https://mirrors.tuna.tsinghua.edu.cn/gnu/gcc/gcc-9.2.0/gcc-9.2.0.tar.gz && \
+    tar -xvf gcc-9.2.0.tar.gz && \
+    cd gcc-9.2.0 && \
     ./configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-bootstrap && \
     make -j 96 && \
     make install && \
