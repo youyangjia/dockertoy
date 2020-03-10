@@ -1,5 +1,5 @@
-FROM centos:centos7
-
+#FROM centos:centos7
+From arm64v8/centos:7
 # Install deps
 RUN cd && \
     yum update -y && \
@@ -41,10 +41,11 @@ RUN cd && \
 # Build and install mysql master
 RUN cd && \
     git clone https://github.com/mysql/mysql-server.git && \
-	cd /home && \
+    cd /home && \
     mkdir boost-1-70-0 && \
+    cd boost-1-70-0 && \
     wget https://dl.bintray.com/boostorg/release/1.70.0/source/boost_1_70_0.tar.gz && \
     cd ~/mysql-server/ && \
-	cmake . -DCMAKE_INSTALL_PREFIX=/home/mysql-master/mysql -DMYSQL_DATADIR=/data/mysql-master/mysql -DSYSCONFDIR=/etc -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DWITH_ARCHIVE_STORAGE_ENGINE=1 -DWITH_BLACKHOLE_STORAGE_ENGINE=1 -DWITH_MYISAM_STORAGE_ENGINE=1 -DENABLED_LOCAL_INFILE=1 -DENABLE_DTRACE=0 -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DCMAKE_C_COMPILER=/usr/bin/gcc -DDOWNLOAD_BOOST=1 -DWITH_BOOST=/home/boost-1-70-0/ -DFORCE_INSOURCE_BUILD=1 && \
+    cmake . -DCMAKE_INSTALL_PREFIX=/home/mysql-master/mysql -DMYSQL_DATADIR=/data/mysql-master/mysql -DSYSCONFDIR=/etc -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DWITH_ARCHIVE_STORAGE_ENGINE=1 -DWITH_BLACKHOLE_STORAGE_ENGINE=1 -DWITH_MYISAM_STORAGE_ENGINE=1 -DENABLED_LOCAL_INFILE=1 -DENABLE_DTRACE=0 -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DCMAKE_C_COMPILER=/usr/bin/gcc -DDOWNLOAD_BOOST=1 -DWITH_BOOST=/home/boost-1-70-0/ -DFORCE_INSOURCE_BUILD=1 && \
     make && \
     make install
