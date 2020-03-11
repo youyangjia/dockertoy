@@ -49,3 +49,61 @@ RUN cd && \
     cmake . -DCMAKE_INSTALL_PREFIX=/home/mysql-master/mysql -DMYSQL_DATADIR=/data/mysql-master/mysql -DSYSCONFDIR=/etc -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DWITH_FEDERATED_STORAGE_ENGINE=1 -DWITH_ARCHIVE_STORAGE_ENGINE=1 -DWITH_BLACKHOLE_STORAGE_ENGINE=1 -DWITH_MYISAM_STORAGE_ENGINE=1 -DENABLED_LOCAL_INFILE=1 -DENABLE_DTRACE=0 -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci -DWITH_EMBEDDED_SERVER=1 -DCMAKE_C_COMPILER=/usr/bin/gcc -DDOWNLOAD_BOOST=1 -DWITH_BOOST=/home/boost-1-70-0/ -DFORCE_INSOURCE_BUILD=1 && \
     make && \
     make install
+
+# Prepare the env
+RUN mkdir -p /data/mysql-master/mysql/ && \
+    adduser mysql && \
+    chown -R mysql:mysql /home/mysql-master/mysql && \
+    chown -R mysql:mysql /data/mysql-master/mysql
+
+USER mysql
+
+RUN cd /home/mysql-master/mysql/bin && \
+    ./mysqld --initialize-insecure
+
+# Run mysqld with mysql user and './mysqld &'
+# need to config mysql.conf manually, such as the below config
+# mysqld configuration
+#[mysqld]
+#basedir=/home/mysql-128-install/mysql
+#datadir=/data/mysql-128/mysql
+#port=4000
+#socket=/tmp/n1.sock
+#mysqlx-port=4001
+#log-error-verbosity=3
+#
+## mysql client connection params
+#max_prepared_stmt_count=1000000
+#max_connections=2048
+#back_log=2000
+#
+## buffer pool and redo-log file setting
+## based on number of core
+#innodb_buffer_pool_instances=8
+## normally 75-90% of system memory.
+#innodb_buffer_pool_size=28G
+#innodb_log_file_size=2G
+#innodb_log_buffer_size=64M
+#innodb_buffer_pool_dump_at_shutdown=0
+#innodb_buffer_pool_load_at_startup=0
+#
+## neighbors flushing turned off for SSD
+#innodb_flush_neighbors=0
+## recommended as innodb has its own buffer pool cache
+#innodb_flush_method=O_DIRECT
+#
+## table open limits
+#table_open_cache=4096
+#table_open_cache_instances=64
+#
+## max should be = IOPS for the allocated vm
+#innodb_io_capacity=12000
+#innodb_io_capacity_max=16000
+#
+## read/write io threads
+#innodb_read_io_threads=8
+#innodb_write_io_threads=8
+#innodb_purge_threads=4
+## should not exceed number of buffer pool instance
+#innodb_page_cleaners=4
+
