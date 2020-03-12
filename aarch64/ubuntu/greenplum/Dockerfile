@@ -76,6 +76,7 @@ RUN pip install setuptools \
     && pip install --no-binary :all: pynacl \
     && pip install --user paramiko || true
 
+# Notes: && pip install --no-binary :all: pynacl \ might install failed due to permission deny, try it with sudo
 
 ######
 # Clone gpdb source code
