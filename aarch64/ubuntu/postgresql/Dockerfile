@@ -81,3 +81,12 @@ export PATH=$PATH:/usr/local/pgsql/bin/
 which psql
 psql --version
 
+# init the psql db server without root user
+# adduser psql
+# su psql
+# export PATH=$PATH:/usr/local/pgsql/bin/
+# initdb --pgdata=/var/pgsql/data --encoding=UTF8
+# pg_ctl -D /var/pgsql/data -l logfile start
+# createdb -O psql psql
+# psql            # this will login the postgres server using psql user and login to psql database
+
