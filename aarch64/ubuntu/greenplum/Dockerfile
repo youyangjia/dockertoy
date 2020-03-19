@@ -54,6 +54,15 @@ RUN localedef -i en_US -f UTF-8 en_US.UTF-8
 RUN useradd -m -d /home/greenplum -s /bin/bash greenplum && echo greenplum:greenplum | chpasswd && adduser greenplum sudo
 RUN echo "greenplum ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
+## Fix the issue during startup the demo cluster like
+# psql: FATAL:  semctl(17530881, 14, SETVAL, 0) failed: Invalid argument (pg_sema.c:151)
+echo "RemoveIPC=no" >> /etc/systemd/logind.conf
+service systemd-logind restart
+
+## Fix resolv.conf
+# add '127.0.0.1 ubuntu' to /etc/hosts in a new line
+echo "127.0.0.1 ubuntu" >> /etc/hosts
+
 USER greenplum
 WORKDIR /home/greenplum
 
@@ -177,6 +186,7 @@ RUN cd /home/greenplum/src/gpdb \
 #    && echo $PATH \
 #    && echo $GPHOME \
 #    && echo $PYTHONPATH
+
 RUN cd /home/greenplum/src/gpdb \
     && source ${TRAVIS_BUILD_DIR}/gpsql/greenplum_path.sh \
     && export USER='greenplum' \
