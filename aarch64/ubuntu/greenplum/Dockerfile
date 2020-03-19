@@ -66,6 +66,9 @@ echo "127.0.0.1 ubuntu" >> /etc/hosts
 USER greenplum
 WORKDIR /home/greenplum
 
+# config the file limit
+RUN ulimit -n 65535
+
 ######
 # Genarate ssh connection without passwd to make sure demo cluster could be launched successful
 ######
