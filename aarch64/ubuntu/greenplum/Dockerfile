@@ -63,6 +63,10 @@ service systemd-logind restart
 # add '127.0.0.1 ubuntu' to /etc/hosts in a new line
 echo "127.0.0.1 ubuntu" >> /etc/hosts
 
+## Flush the iprables
+iptables -F
+iptables -F -t nat
+
 USER greenplum
 WORKDIR /home/greenplum
 
