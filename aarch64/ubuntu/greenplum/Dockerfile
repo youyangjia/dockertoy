@@ -56,16 +56,16 @@ RUN echo "greenplum ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 ## Fix the issue during startup the demo cluster like
 # psql: FATAL:  semctl(17530881, 14, SETVAL, 0) failed: Invalid argument (pg_sema.c:151)
-echo "RemoveIPC=no" >> /etc/systemd/logind.conf
-service systemd-logind restart
+RUN echo "RemoveIPC=no" >> /etc/systemd/logind.conf && \
+    service systemd-logind restart
 
 ## Fix resolv.conf
 # add '127.0.0.1 ubuntu' to /etc/hosts in a new line
-echo "127.0.0.1 ubuntu" >> /etc/hosts
+RUN echo "127.0.0.1 ubuntu" >> /etc/hosts
 
 ## Flush the iprables
-iptables -F
-iptables -F -t nat
+RUN iptables -F && \
+    iptables -F -t nat
 
 USER greenplum
 WORKDIR /home/greenplum
@@ -106,10 +106,10 @@ RUN mkdir -p /home/greenplum/src \
 RUN cd /home/greenplum/src/gpdb \
     && git config --global user.email "you@example.com" \
     && git config --global user.name "Your Name"
-RUN cd /home/greenplum/src/gpdb \
-    && git fetch origin pull/4/head:test-branch \
-    && git checkout test-branch \
-    && git rebase master
+#RUN cd /home/greenplum/src/gpdb \
+#    && git fetch origin pull/4/head:test-branch \
+#    && git checkout test-branch \
+#    && git rebase master
 
 ENV TRAVIS_BUILD_DIR /home/greenplum/src/gpdb
 
