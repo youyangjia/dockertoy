@@ -155,6 +155,9 @@ pip3 install -r buildscripts/requirements.txt
 #python3 buildscripts/scons.py MONGO_VERSION=5.0.0 all   CFLAGS="-march=armv8-a+crc -mtune=generic" -j4 --disable-warnings-as-errors 
 
 # the above will run so long time, as it includes so many things in it. So we need to change it from 'all' to just 'core'
+# python3 buildscripts/scons.py MONGO_VERSION=5.0.0 core CFLAGS="-march=armv8-a+crc -mtune=generic" -j4 --disable-warnings-as-errors 
+
+# right now, we can build all things.
 python3 buildscripts/scons.py MONGO_VERSION=5.0.0 core CFLAGS="-march=armv8-a+crc -mtune=generic" -j4 --disable-warnings-as-errors 
 
 mkdir /usr/local/mongo
