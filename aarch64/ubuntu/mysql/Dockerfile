@@ -75,13 +75,20 @@ RUN mkdir -p /data/mysql-master/mysql/ && \
     chown -R mysql:mysql /data/mysql-master/mysql
 
 	
+# install sysbench deps for mysql and postgresql
+RUN apt update && \
+    apt-get -y install libmysqlclient-dev libssl-dev && \
+    apt-get -y install libpq-dev && \
+    apt-get -y install libtool
+
 # Install sysbench
+# ./configure --with-mysql --with-pgsql
 RUN cd && \
     git clone https://github.com/akopytov/sysbench.git && \
 	cd sysbench && \
 	./autogen.sh && \
 	./configure --with-mysql-includes=/home/mysql-master/mysql/include --with-mysql-libs=/home/mysql-master/mysql/lib/ --prefix=/home/sysbench-install/ && \
-	make && \
+	make -j && \
 	make install
 
 # download test suite
